@@ -1,4 +1,3 @@
 import $ from 'jquery'
-var myFunc = (a = 2) => {
-  return a += 10
-}
+var log = console.log
+log('Im working')

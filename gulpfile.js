@@ -9,6 +9,8 @@ const autoprefixer = require('autoprefixer')
 const sourcemaps = require('gulp-sourcemaps')
 const postcss = require('gulp-postcss')
 const webpack = require('webpack-stream');
+const clean = require('gulp-clean');
+const { series } = require('gulp');
 const paths = {
   "root": './dist',
   "html": {
@@ -46,8 +48,8 @@ var webpackConfig = {
   },
   mode: isDev ? 'development' : 'production'
 }
-async function buildCss () {
-  return gulp.src(paths.css.source)
+async function buildCss (cb) {
+  gulp.src(paths.css.source)
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))
     .pipe(cleancss({keepBreaks: false}))
@@ -55,20 +57,34 @@ async function buildCss () {
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(paths.css.dest))
     .pipe(browserSync.stream())
+    cb()
 }
-async function buildHTML () {
-  return gulp.src(paths.html.source)
+async function buildHTML (cb) {
+  gulp.src(paths.html.source)
     .pipe(pug({ "pretty" : true }))
     .pipe(gulp.dest(paths.html.dest))
     .pipe(browserSync.stream())
+    cb()
 }
-async function buildJs() {
-  return gulp.src(paths.js.source)
+async function buildJs(cb) {
+  gulp.src(paths.js.source)
     .pipe(webpack(webpackConfig))
     .pipe(gulp.dest(paths.js.dest))
     .pipe(browserSync.stream())
+    cb()
 }
-async function watch () {
+function imagesCopy(cb) {
+  gulp.src('./source/assets/img/*')
+    .pipe(gulp.dest('./dist/img/'))
+    .pipe(browserSync.stream())
+    cb()
+}
+async function cleanDist(cb) {
+  gulp.src('./dist/', {read: false, allowEmpty: true})
+    .pipe(clean());
+  cb()
+}
+async function watch (cb) {
   browserSync.init({
     server: {
       baseDir: paths.root
@@ -77,8 +93,14 @@ async function watch () {
   gulp.watch(paths.html.watch, buildHTML)
   gulp.watch(paths.css.watch, buildCss)
   gulp.watch(paths.js.watch, buildJs)
+  cb()
 }
+
+
+exports.clean = cleanDist;
+exports.images = imagesCopy;
 exports.js = buildJs;
 exports.css = buildCss;
 exports.templates = buildHTML;
 exports.watch = watch;
+exports.build = series(cleanDist, imagesCopy, buildCss, buildHTML, buildJs);

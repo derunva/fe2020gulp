@@ -3,5 +3,9 @@ block variables
   -
     var pageTitle = "homepage"
 block content
-  h1 Hello!!!
-  p my first page.
+  include ../components/article.mixin.pug
+  include ../components/articles.list.pug
+  +article
+  +article({title: "my title"})
+  each article in articles
+    +article(article)
