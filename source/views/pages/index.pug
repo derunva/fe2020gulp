@@ -5,7 +5,8 @@ block variables
 block content
   include ../components/article.mixin.pug
   include ../components/articles.list.pug
-  +article
-  +article({title: "my title"})
-  each article in articles
-    +article(article)
+  .wrapper
+    .row
+      each article in articles
+        .column.column-phablet-1-2.column-laptop-1-3.column-large-1-4.m-b-30
+          +article(article)

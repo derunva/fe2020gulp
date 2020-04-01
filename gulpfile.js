@@ -52,7 +52,7 @@ async function buildCss (cb) {
   gulp.src(paths.css.source)
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))
-    .pipe(cleancss({keepBreaks: false}))
+    .pipe(cleancss({keepBreaks: true}))
     .pipe(postcss([ autoprefixer() ]))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(paths.css.dest))
